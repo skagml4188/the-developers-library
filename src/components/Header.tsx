@@ -129,24 +129,26 @@ export function Header() {
                 로그인
               </motion.button>
             </Link>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              style={{
-                fontFamily: "'Cinzel', serif",
-                fontSize: '0.75rem',
-                letterSpacing: '0.1em',
-                padding: '8px 20px',
-                border: '1px solid rgba(212,175,55,0.5)',
-                borderRadius: '2px',
-                color: '#d4af37',
-                background: 'rgba(212,175,55,0.08)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              내 서재 등록
-            </motion.button>
+            <Link to="/portfolio/new" style={{ textDecoration: 'none' }}>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  fontFamily: "'Cinzel', serif",
+                  fontSize: '0.75rem',
+                  letterSpacing: '0.1em',
+                  padding: '8px 20px',
+                  border: '1px solid rgba(212,175,55,0.5)',
+                  borderRadius: '2px',
+                  color: '#d4af37',
+                  background: 'rgba(212,175,55,0.08)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                내 서재 등록
+              </motion.button>
+            </Link>
           </div>
         </div>
       </div>
