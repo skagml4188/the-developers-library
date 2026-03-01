@@ -51,7 +51,7 @@ export function Header() {
                   backgroundClip: 'text',
                 }}
               >
-                The Developer's Library
+                DEVSHELF
               </div>
               <div
                 style={{

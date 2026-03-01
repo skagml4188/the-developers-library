@@ -135,7 +135,7 @@ export function Footer() {
             marginBottom: 8,
           }}
         >
-          The Developer's Library
+          DEVSHELF
         </div>
         <p
           style={{
