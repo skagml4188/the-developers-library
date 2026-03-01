@@ -113,9 +113,8 @@ export function BookCard({ portfolio, isFiltered }: BookCardProps) {
             {/* 제목 (세로) */}
             <div
               style={{
-                writingMode: 'vertical-rl',
+                writingMode: 'vertical-lr',
                 textOrientation: 'mixed',
-                transform: 'rotate(180deg)',
                 fontFamily: "'Cinzel', serif",
                 fontSize: '0.7rem',
                 fontWeight: 700,
@@ -137,9 +136,8 @@ export function BookCard({ portfolio, isFiltered }: BookCardProps) {
             {/* 역할 (세로 작게) */}
             <div
               style={{
-                writingMode: 'vertical-rl',
+                writingMode: 'vertical-lr',
                 textOrientation: 'mixed',
-                transform: 'rotate(180deg)',
                 fontFamily: "'EB Garamond', serif",
                 fontSize: '0.58rem',
                 color: `${portfolio.accentColor}90`,
