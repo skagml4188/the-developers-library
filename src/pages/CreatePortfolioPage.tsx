@@ -1,21 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FloatingParticles } from '../components/FloatingParticles';
 import type { TechStack } from '../types';
+import { ALL_STACKS, STACK_ICONS } from '../data/stacks';
 
 /* ── 상수 ── */
-const ALL_STACKS: TechStack[] = [
-  'React', 'TypeScript', 'Next.js', 'Vue', 'Node.js',
-  'Python', 'UI/UX', 'Spring', 'GraphQL', 'Three.js',
-];
-
-const STACK_ICONS: Record<TechStack, string> = {
-  React: '⚛', TypeScript: '🔷', 'Next.js': '▲', Vue: '💚',
-  'Node.js': '🟢', Python: '🐍', 'UI/UX': '🎨', Spring: '🍃',
-  GraphQL: '◈', 'Three.js': '🔮',
-};
-
 const ROLES = [
   'Frontend Engineer',
   'Backend Engineer',
@@ -112,11 +102,8 @@ function MiniBook({ name, role, theme }: { name: string; role: string; theme: ty
         flexShrink: 0,
       }}
     >
-      {/* 바인딩 선 */}
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, background: 'rgba(0,0,0,0.35)' }} />
-      {/* 장식선 상단 */}
       <div style={{ width: '70%', height: 1, background: `linear-gradient(90deg, transparent, ${theme.accentColor}70, transparent)` }} />
-      {/* 이름 */}
       <div style={{
         writingMode: 'vertical-lr',
         fontFamily: "'Cinzel', serif",
@@ -134,7 +121,6 @@ function MiniBook({ name, role, theme }: { name: string; role: string; theme: ty
       }}>
         {name || '이름'}
       </div>
-      {/* 역할 */}
       <div style={{
         writingMode: 'vertical-lr',
         fontFamily: "'EB Garamond', serif",
@@ -144,9 +130,7 @@ function MiniBook({ name, role, theme }: { name: string; role: string; theme: ty
       }}>
         {role.split(' ')[0] || 'Role'}
       </div>
-      {/* 장식선 하단 */}
       <div style={{ width: '70%', height: 1, background: `linear-gradient(90deg, transparent, ${theme.accentColor}70, transparent)` }} />
-      {/* 텍스처 */}
       <div style={{ position: 'absolute', inset: 0, background: 'repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)', pointerEvents: 'none' }} />
     </div>
   );
@@ -156,43 +140,47 @@ function MiniBook({ name, role, theme }: { name: string; role: string; theme: ty
 export function CreatePortfolioPage() {
   const navigate = useNavigate();
 
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('');
-  const [tagline, setTagline] = useState('');
-  const [techStack, setTechStack] = useState<TechStack[]>([]);
-  const [liveDemo, setLiveDemo] = useState('');
-  const [github, setGithub] = useState('');
-  const [description, setDescription] = useState('');
-  const [themeIdx, setThemeIdx] = useState(0);
+  const [form, setForm] = useState({
+    name: '',
+    role: '',
+    tagline: '',
+    techStack: [] as TechStack[],
+    liveDemo: '',
+    github: '',
+    description: '',
+    themeIdx: 0,
+  });
   const [touched, setTouched] = useState({ name: false, role: false, tagline: false, liveDemo: false });
   const [isLoading, setIsLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(false);
 
-  useEffect(() => {
-    setShowPreview(false);
-  }, [liveDemo]);
+  const selectedTheme = BOOK_THEMES[form.themeIdx];
 
-  const selectedTheme = BOOK_THEMES[themeIdx];
+  const setField = <K extends keyof typeof form>(key: K, value: typeof form[K]) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
 
   const errors = {
-    name: name.length > 0 && name.length < 2 ? '이름은 최소 2자 이상이어야 합니다.' : '',
-    role: touched.role && !role ? '직군을 선택해주세요.' : '',
-    tagline: tagline.length > 60 ? '한 줄 소개는 60자 이내로 작성해주세요.' : '',
-    liveDemo: liveDemo && !/^https?:\/\/.+/.test(liveDemo) ? '올바른 URL 형식이어야 합니다. (https://...)' : '',
+    name: form.name.length > 0 && form.name.length < 2 ? '이름은 최소 2자 이상이어야 합니다.' : '',
+    role: touched.role && !form.role ? '직군을 선택해주세요.' : '',
+    tagline: form.tagline.length > 60 ? '한 줄 소개는 60자 이내로 작성해주세요.' : '',
+    liveDemo: form.liveDemo && !/^https?:\/\/.+/.test(form.liveDemo) ? '올바른 URL 형식이어야 합니다. (https://...)' : '',
   };
 
-  const isValid = name.length >= 2 && !!role && tagline.length > 0 && tagline.length <= 60 &&
-    liveDemo.length > 0 && /^https?:\/\/.+/.test(liveDemo);
+  const isValid = form.name.length >= 2 && !!form.role && form.tagline.length > 0 && form.tagline.length <= 60 &&
+    form.liveDemo.length > 0 && /^https?:\/\/.+/.test(form.liveDemo);
 
   const touch = (field: keyof typeof touched) =>
     setTouched((p) => ({ ...p, [field]: true }));
 
   const toggleStack = (stack: TechStack) =>
-    setTechStack((prev) =>
-      prev.includes(stack) ? prev.filter((s) => s !== stack) : [...prev, stack]
-    );
+    setForm((prev) => ({
+      ...prev,
+      techStack: prev.techStack.includes(stack)
+        ? prev.techStack.filter((s) => s !== stack)
+        : [...prev.techStack, stack],
+    }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,13 +192,13 @@ export function CreatePortfolioPage() {
 
     const newPortfolio = {
       id: Date.now().toString(),
-      name,
-      role,
-      tagline,
-      techStack,
-      description,
-      github: github || 'https://github.com',
-      liveDemo,
+      name: form.name,
+      role: form.role,
+      tagline: form.tagline,
+      techStack: form.techStack,
+      description: form.description,
+      github: form.github || 'https://github.com',
+      liveDemo: form.liveDemo,
       ...selectedTheme,
       projectCount: 0,
       featured: false,
@@ -229,12 +217,12 @@ export function CreatePortfolioPage() {
         <FloatingParticles />
         <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} style={{ position: 'relative', zIndex: 2, textAlign: 'center', maxWidth: 420 }}>
           <motion.div initial={{ rotateY: 90 }} animate={{ rotateY: 0 }} transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }} style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
-            <MiniBook name={name} role={role} theme={selectedTheme} />
+            <MiniBook name={form.name} role={form.role} theme={selectedTheme} />
           </motion.div>
           <div style={{ fontFamily: "'EB Garamond', serif", fontSize: '0.8rem', color: 'rgba(200,176,138,0.5)', letterSpacing: '0.2em', fontStyle: 'italic', marginBottom: 10 }}>— 서재에 새 책이 꽂혔습니다 —</div>
           <h2 style={{ fontFamily: "'Cinzel', serif", fontSize: '1.5rem', fontWeight: 700, background: 'linear-gradient(135deg, #f0c040, #d4af37)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: 12 }}>등록 완료</h2>
           <p style={{ fontFamily: "'EB Garamond', serif", fontSize: '1rem', color: 'rgba(200,176,138,0.7)', fontStyle: 'italic', lineHeight: 1.7, marginBottom: 32 }}>
-            "{name}"의 서재가 개발자의 도서관에<br />아름답게 자리를 잡았습니다.
+            "{form.name}"의 서재가 개발자의 도서관에<br />아름답게 자리를 잡았습니다.
           </p>
           <motion.button
             whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
@@ -330,8 +318,8 @@ export function CreatePortfolioPage() {
                     <label style={labelStyle}>이름 <span style={{ color: '#d4af37' }}>*</span></label>
                     <input
                       type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      value={form.name}
+                      onChange={(e) => setField('name', e.target.value)}
                       onBlur={() => touch('name')}
                       placeholder="홍길동"
                       style={{ ...inputStyle, borderColor: touched.name && errors.name ? 'rgba(248,113,113,0.5)' : 'rgba(212,175,55,0.2)' }}
@@ -345,8 +333,8 @@ export function CreatePortfolioPage() {
                   <div>
                     <label style={labelStyle}>직군 <span style={{ color: '#d4af37' }}>*</span></label>
                     <select
-                      value={role}
-                      onChange={(e) => setRole(e.target.value)}
+                      value={form.role}
+                      onChange={(e) => setField('role', e.target.value)}
                       onBlur={() => touch('role')}
                       style={{
                         ...inputStyle,
@@ -355,7 +343,7 @@ export function CreatePortfolioPage() {
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'right 14px center',
                         paddingRight: 36,
-                        color: role ? '#e8d5b0' : 'rgba(200,176,138,0.4)',
+                        color: form.role ? '#e8d5b0' : 'rgba(200,176,138,0.4)',
                         borderColor: touched.role && errors.role ? 'rgba(248,113,113,0.5)' : 'rgba(212,175,55,0.2)',
                         cursor: 'pointer',
                       }}
@@ -374,14 +362,14 @@ export function CreatePortfolioPage() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                       <label style={{ ...labelStyle, marginBottom: 0 }}>한 줄 소개 <span style={{ color: '#d4af37' }}>*</span></label>
-                      <span style={{ fontFamily: "'EB Garamond', serif", fontSize: '0.75rem', color: tagline.length > 60 ? '#f87171' : 'rgba(200,176,138,0.35)', fontStyle: 'italic' }}>
-                        {tagline.length} / 60
+                      <span style={{ fontFamily: "'EB Garamond', serif", fontSize: '0.75rem', color: form.tagline.length > 60 ? '#f87171' : 'rgba(200,176,138,0.35)', fontStyle: 'italic' }}>
+                        {form.tagline.length} / 60
                       </span>
                     </div>
                     <input
                       type="text"
-                      value={tagline}
-                      onChange={(e) => setTagline(e.target.value)}
+                      value={form.tagline}
+                      onChange={(e) => setField('tagline', e.target.value)}
                       onBlur={() => touch('tagline')}
                       placeholder="사용자의 경험을 코드로 완성하는 개발자"
                       style={{ ...inputStyle, borderColor: touched.tagline && errors.tagline ? 'rgba(248,113,113,0.5)' : 'rgba(212,175,55,0.2)' }}
@@ -398,7 +386,7 @@ export function CreatePortfolioPage() {
                 <SectionTitle>TECH STACK</SectionTitle>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {ALL_STACKS.map((stack) => {
-                    const selected = techStack.includes(stack);
+                    const selected = form.techStack.includes(stack);
                     return (
                       <motion.button
                         key={stack}
@@ -432,7 +420,7 @@ export function CreatePortfolioPage() {
                     );
                   })}
                 </div>
-                {techStack.length === 0 && (
+                {form.techStack.length === 0 && (
                   <p style={{ marginTop: 10, fontFamily: "'EB Garamond', serif", fontSize: '0.8rem', color: 'rgba(200,176,138,0.3)', fontStyle: 'italic' }}>
                     사용하는 기술 스택을 선택하세요 (복수 선택 가능)
                   </p>
@@ -447,8 +435,11 @@ export function CreatePortfolioPage() {
                     <label style={labelStyle}>포트폴리오 URL <span style={{ color: '#d4af37' }}>*</span></label>
                     <input
                       type="url"
-                      value={liveDemo}
-                      onChange={(e) => setLiveDemo(e.target.value)}
+                      value={form.liveDemo}
+                      onChange={(e) => {
+                        setField('liveDemo', e.target.value);
+                        setShowPreview(false);
+                      }}
                       onBlur={() => touch('liveDemo')}
                       placeholder="https://your-portfolio.com"
                       style={{ ...inputStyle, borderColor: touched.liveDemo && errors.liveDemo ? 'rgba(248,113,113,0.5)' : 'rgba(212,175,55,0.2)' }}
@@ -458,14 +449,15 @@ export function CreatePortfolioPage() {
                     <FieldError show={touched.liveDemo && !!errors.liveDemo} message={errors.liveDemo} />
 
                     {/* 미리보기 토글 버튼 */}
-                    {liveDemo && /^https?:\/\/.+/.test(liveDemo) && !errors.liveDemo && (
+                    {form.liveDemo && /^https?:\/\/.+/.test(form.liveDemo) && !errors.liveDemo && (
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
-                          if (!showPreview) setIframeLoading(true);
-                          setShowPreview((v) => !v);
+                          const opening = !showPreview;
+                          if (opening) setIframeLoading(true);
+                          setShowPreview(opening);
                         }}
                         style={{
                           marginTop: 8,
@@ -536,10 +528,10 @@ export function CreatePortfolioPage() {
                                   whiteSpace: 'nowrap',
                                 }}
                               >
-                                {liveDemo}
+                                {form.liveDemo}
                               </div>
                               <a
-                                href={liveDemo}
+                                href={form.liveDemo}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{
@@ -582,7 +574,7 @@ export function CreatePortfolioPage() {
                             )}
 
                             <iframe
-                              src={liveDemo}
+                              src={form.liveDemo}
                               title="포트폴리오 미리보기"
                               sandbox="allow-scripts allow-same-origin allow-forms"
                               onLoad={() => setIframeLoading(false)}
@@ -597,7 +589,6 @@ export function CreatePortfolioPage() {
                             />
                           </div>
 
-                          {/* 안내 문구 */}
                           <p
                             style={{
                               marginTop: 6,
@@ -617,8 +608,8 @@ export function CreatePortfolioPage() {
                     <label style={labelStyle}>GitHub URL <span style={{ fontFamily: "'EB Garamond', serif", letterSpacing: 0, fontStyle: 'italic', color: 'rgba(200,176,138,0.4)' }}>(선택)</span></label>
                     <input
                       type="url"
-                      value={github}
-                      onChange={(e) => setGithub(e.target.value)}
+                      value={form.github}
+                      onChange={(e) => setField('github', e.target.value)}
                       placeholder="https://github.com/username"
                       style={inputStyle}
                       onFocus={(e) => { e.target.style.borderColor = 'rgba(212,175,55,0.6)'; e.target.style.background = 'rgba(212,175,55,0.05)'; }}
@@ -634,8 +625,8 @@ export function CreatePortfolioPage() {
                   <SectionTitle>ABOUT ME</SectionTitle>
                 </div>
                 <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  value={form.description}
+                  onChange={(e) => setField('description', e.target.value)}
                   placeholder="나의 개발 철학, 경험, 관심사를 자유롭게 작성해주세요..."
                   rows={4}
                   style={{
@@ -655,7 +646,7 @@ export function CreatePortfolioPage() {
                 <SectionTitle>BOOK THEME</SectionTitle>
                 <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                   {/* 미니 책 미리보기 */}
-                  <MiniBook name={name} role={role} theme={selectedTheme} />
+                  <MiniBook name={form.name} role={form.role} theme={selectedTheme} />
 
                   {/* 색상 선택 */}
                   <div style={{ flex: 1 }}>
@@ -669,22 +660,22 @@ export function CreatePortfolioPage() {
                           type="button"
                           whileHover={{ scale: 1.12 }}
                           whileTap={{ scale: 0.93 }}
-                          onClick={() => setThemeIdx(i)}
+                          onClick={() => setField('themeIdx', i)}
                           title={theme.label}
                           style={{
                             width: 36,
                             height: 36,
                             borderRadius: 3,
-                            border: themeIdx === i ? `2px solid ${theme.accentColor}` : '2px solid transparent',
+                            border: form.themeIdx === i ? `2px solid ${theme.accentColor}` : '2px solid transparent',
                             background: `linear-gradient(135deg, ${theme.coverColor}, ${theme.spineColor})`,
                             cursor: 'pointer',
-                            boxShadow: themeIdx === i ? `0 0 12px ${theme.accentColor}60` : '0 2px 8px rgba(0,0,0,0.4)',
+                            boxShadow: form.themeIdx === i ? `0 0 12px ${theme.accentColor}60` : '0 2px 8px rgba(0,0,0,0.4)',
                             position: 'relative',
                             transition: 'box-shadow 0.2s',
                             flexShrink: 0,
                           }}
                         >
-                          {themeIdx === i && (
+                          {form.themeIdx === i && (
                             <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', color: theme.accentColor }}>✓</span>
                           )}
                         </motion.button>

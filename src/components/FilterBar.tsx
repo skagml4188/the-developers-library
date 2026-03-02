@@ -1,27 +1,11 @@
 import { motion } from 'framer-motion';
 import type { TechStack } from '../types';
-
-const ALL_STACKS: TechStack[] = [
-  'React', 'TypeScript', 'Next.js', 'Vue', 'Node.js', 'Python', 'UI/UX', 'Spring', 'GraphQL', 'Three.js',
-];
+import { ALL_STACKS, STACK_ICONS } from '../data/stacks';
 
 interface FilterBarProps {
   selected: TechStack | null;
   onSelect: (stack: TechStack | null) => void;
 }
-
-const stackIcons: Record<TechStack, string> = {
-  React: '⚛',
-  TypeScript: '🔷',
-  'Next.js': '▲',
-  Vue: '💚',
-  'Node.js': '🟢',
-  Python: '🐍',
-  'UI/UX': '🎨',
-  Spring: '🍃',
-  GraphQL: '◈',
-  'Three.js': '🔮',
-};
 
 export function FilterBar({ selected, onSelect }: FilterBarProps) {
   return (
@@ -132,7 +116,7 @@ export function FilterBar({ selected, onSelect }: FilterBarProps) {
                 : 'none',
             }}
           >
-            <span>{stackIcons[stack]}</span>
+            <span>{STACK_ICONS[stack]}</span>
             {stack}
           </motion.button>
         ))}

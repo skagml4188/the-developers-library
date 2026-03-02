@@ -1,5 +1,7 @@
-import { motion } from 'framer-motion';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BookCard } from './BookCard';
+import { PortfolioModal } from './PortfolioModal';
 import type { Portfolio, TechStack } from '../types';
 
 interface BookShelfProps {
@@ -7,12 +9,12 @@ interface BookShelfProps {
   selectedStack: TechStack | null;
 }
 
-function ShelfRow({ portfolios, selectedStack, rowIndex }: {
+function ShelfRow({ portfolios, selectedStack, rowIndex, onSelect }: {
   portfolios: Portfolio[];
   selectedStack: TechStack | null;
   rowIndex: number;
+  onSelect: (portfolio: Portfolio) => void;
 }) {
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -44,6 +46,7 @@ function ShelfRow({ portfolios, selectedStack, rowIndex }: {
               key={portfolio.id}
               portfolio={portfolio}
               isFiltered={isFiltered}
+              onSelect={() => onSelect(portfolio)}
             />
           );
         })}
@@ -101,7 +104,6 @@ function ShelfRow({ portfolios, selectedStack, rowIndex }: {
           }}
         />
       </div>
-
     </motion.div>
   );
 }
@@ -134,15 +136,19 @@ function DecorBook({ color, width, height }: { color: string; width: number; hei
   );
 }
 
-export function BookShelf({ portfolios, selectedStack }: BookShelfProps) {
-  const BOOKS_PER_ROW = 6;
-  const rows: Portfolio[][] = [];
-  for (let i = 0; i < portfolios.length; i += BOOKS_PER_ROW) {
-    rows.push(portfolios.slice(i, i + BOOKS_PER_ROW));
-  }
+const BOOKS_PER_ROW = 6;
 
-  // 행이 1개면 나머지를 두 번째 행으로 채움 (장식용)
-  if (rows.length === 0) rows.push([]);
+export function BookShelf({ portfolios, selectedStack }: BookShelfProps) {
+  const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(null);
+
+  const rows = useMemo(() => {
+    const result: Portfolio[][] = [];
+    for (let i = 0; i < portfolios.length; i += BOOKS_PER_ROW) {
+      result.push(portfolios.slice(i, i + BOOKS_PER_ROW));
+    }
+    if (result.length === 0) result.push([]);
+    return result;
+  }, [portfolios]);
 
   return (
     <section
@@ -249,6 +255,7 @@ export function BookShelf({ portfolios, selectedStack }: BookShelfProps) {
               portfolios={rowPortfolios}
               selectedStack={selectedStack}
               rowIndex={idx}
+              onSelect={setSelectedPortfolio}
             />
           ))}
         </div>
@@ -292,6 +299,16 @@ export function BookShelf({ portfolios, selectedStack }: BookShelfProps) {
           <span>✦</span>
         </div>
       </motion.div>
+
+      {/* 포트폴리오 모달 */}
+      <AnimatePresence>
+        {selectedPortfolio && (
+          <PortfolioModal
+            portfolio={selectedPortfolio}
+            onClose={() => setSelectedPortfolio(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

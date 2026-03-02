@@ -1,0 +1,31 @@
+import type { TechStack } from '../types';
+
+export const ALL_STACKS: TechStack[] = [
+  'React', 'TypeScript', 'Next.js', 'Vue', 'Node.js', 'Python', 'UI/UX', 'Spring', 'GraphQL', 'Three.js',
+];
+
+export const STACK_ICONS: Record<TechStack, string> = {
+  React: '⚛',
+  TypeScript: '🔷',
+  'Next.js': '▲',
+  Vue: '💚',
+  'Node.js': '🟢',
+  Python: '🐍',
+  'UI/UX': '🎨',
+  Spring: '🍃',
+  GraphQL: '◈',
+  'Three.js': '🔮',
+};
+
+export const TECH_COLORS: Record<string, string> = {
+  React: '#61DAFB',
+  TypeScript: '#3178C6',
+  'Next.js': '#ffffff',
+  Vue: '#42B883',
+  'Node.js': '#339933',
+  Python: '#FFD43B',
+  'UI/UX': '#FF6B9D',
+  Spring: '#6DB33F',
+  GraphQL: '#E10098',
+  'Three.js': '#ffffff',
+};
