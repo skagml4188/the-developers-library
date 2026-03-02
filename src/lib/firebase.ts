@@ -1,22 +1,28 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GithubAuthProvider, GoogleAuthProvider } from 'firebase/auth';
+import type { Auth } from 'firebase/auth';
+const {
+  VITE_FIREBASE_API_KEY: apiKey,
+  VITE_FIREBASE_AUTH_DOMAIN: authDomain,
+  VITE_FIREBASE_PROJECT_ID: projectId,
+  VITE_FIREBASE_STORAGE_BUCKET: storageBucket,
+  VITE_FIREBASE_MESSAGING_SENDER_ID: messagingSenderId,
+  VITE_FIREBASE_APP_ID: appId,
+} = import.meta.env;
 
-// ─────────────────────────────────────────────
-// Firebase 콘솔(https://console.firebase.google.com)에서
-// 프로젝트 > 프로젝트 설정 > 앱 추가(웹)를 통해
-// 아래 값들을 채워주세요.
-// ─────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+// 필수 환경변수가 없으면 Firebase를 초기화하지 않음
+// (배포 시 환경변수 미설정으로 인한 앱 크래시 방지)
+const isConfigured = !!(apiKey && authDomain && projectId);
 
-const app = initializeApp(firebaseConfig);
+let auth: Auth | null = null;
+let githubProvider: GithubAuthProvider | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
 
-export const auth = getAuth(app);
-export const githubProvider = new GithubAuthProvider();
-export const googleProvider = new GoogleAuthProvider();
+if (isConfigured) {
+  const app = initializeApp({ apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId });
+  auth = getAuth(app);
+  githubProvider = new GithubAuthProvider();
+  googleProvider = new GoogleAuthProvider();
+}
+
+export { auth, githubProvider, googleProvider, isConfigured };

@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { signInWithPopup } from 'firebase/auth';
 import { FloatingParticles } from '../components/FloatingParticles';
-import { auth, githubProvider, googleProvider } from '../lib/firebase';
+import { auth, githubProvider, googleProvider, isConfigured } from '../lib/firebase';
 
 type OAuthProvider = 'github' | 'google';
 
@@ -44,6 +44,7 @@ export function LoginPage() {
   };
 
   const handleOAuth = async (provider: OAuthProvider) => {
+    if (!isConfigured || !auth || !githubProvider || !googleProvider) return;
     setError('');
     setOauthLoading(provider);
     try {
@@ -220,10 +221,11 @@ export function LoginPage() {
               {/* GitHub */}
               <motion.button
                 type="button"
-                whileHover={{ scale: oauthLoading ? 1 : 1.02 }}
-                whileTap={{ scale: oauthLoading ? 1 : 0.98 }}
-                disabled={!!oauthLoading || isLoading}
+                whileHover={{ scale: (oauthLoading || !isConfigured) ? 1 : 1.02 }}
+                whileTap={{ scale: (oauthLoading || !isConfigured) ? 1 : 0.98 }}
+                disabled={!!oauthLoading || isLoading || !isConfigured}
                 onClick={() => handleOAuth('github')}
+                title={!isConfigured ? 'Firebase 설정이 필요합니다' : undefined}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -234,9 +236,9 @@ export function LoginPage() {
                   background: 'rgba(36,41,47,0.9)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: 3,
-                  cursor: oauthLoading ? 'not-allowed' : 'pointer',
+                  cursor: (oauthLoading || !isConfigured) ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s',
-                  opacity: oauthLoading && oauthLoading !== 'github' ? 0.5 : 1,
+                  opacity: (!isConfigured || (oauthLoading && oauthLoading !== 'github')) ? 0.4 : 1,
                 }}
               >
                 {oauthLoading === 'github' ? <LoadingSpinner color="#fff" /> : <GitHubIcon />}
@@ -256,10 +258,11 @@ export function LoginPage() {
               {/* Google */}
               <motion.button
                 type="button"
-                whileHover={{ scale: oauthLoading ? 1 : 1.02 }}
-                whileTap={{ scale: oauthLoading ? 1 : 0.98 }}
-                disabled={!!oauthLoading || isLoading}
+                whileHover={{ scale: (oauthLoading || !isConfigured) ? 1 : 1.02 }}
+                whileTap={{ scale: (oauthLoading || !isConfigured) ? 1 : 0.98 }}
+                disabled={!!oauthLoading || isLoading || !isConfigured}
                 onClick={() => handleOAuth('google')}
+                title={!isConfigured ? 'Firebase 설정이 필요합니다' : undefined}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -270,9 +273,9 @@ export function LoginPage() {
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid rgba(212,175,55,0.2)',
                   borderRadius: 3,
-                  cursor: oauthLoading ? 'not-allowed' : 'pointer',
+                  cursor: (oauthLoading || !isConfigured) ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s',
-                  opacity: oauthLoading && oauthLoading !== 'google' ? 0.5 : 1,
+                  opacity: (!isConfigured || (oauthLoading && oauthLoading !== 'google')) ? 0.4 : 1,
                 }}
               >
                 {oauthLoading === 'google' ? <LoadingSpinner color="#d4af37" /> : <GoogleIcon />}
